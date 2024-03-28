@@ -1,0 +1,230 @@
+import json
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table_name = 'VotesTable'
+
+def lambda_handler(event, context):
+    user_display_name = event.get('userDisplayName')
+    checked_members = event.get('checkedMembers')
+
+    table = dynamodb.Table(table_name)
+
+    for member_name, voted in checked_members.items():
+        table.put_item(
+            Item={
+                'UserDisplayName': user_display_name,
+                'MemberName': member_name,
+                'Voted': voted
+            }
+        )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Votes stored successfully')
+    }
+
+
+
+
+/////
+import json
+import hashlib
+import time
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table_name = 'VotesTable'
+
+def generate_unique_id(username, membername):
+    current_time = str(int(time.time()))
+    data_to_hash = f"{username}-{membername}-{current_time}"
+    unique_id = hashlib.sha256(data_to_hash.encode()).hexdigest()
+    return unique_id
+
+def lambda_handler(event, context):
+    user_display_name = event.get('userDisplayName')
+    checked_members = event.get('checkedMembers')
+
+    table = dynamodb.Table(table_name)
+
+    for member_name, voted in checked_members.items():
+        unique_id = generate_unique_id(user_display_name, member_name)
+        table.put_item(
+            Item={
+                'VoteID': unique_id,
+                'UserDisplayName': user_display_name,
+                'MemberName': member_name,
+                'Voted': voted
+            }
+        )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Votes stored successfully')
+    }
+
+////////
+import json
+import hashlib
+import time
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table_name = 'VotesTable'
+
+def generate_unique_id(username, membername):
+    current_time = str(int(time.time()))
+    data_to_hash = f"{username}-{membername}-{current_time}"
+    unique_id = hashlib.sha256(data_to_hash.encode()).hexdigest()
+    return unique_id
+
+def lambda_handler(event, context):
+    user_display_name = event.get('userDisplayName')
+    checked_members = event.get('checkedMembers')
+
+    table = dynamodb.Table(table_name)
+
+    # Check if the user has already voted
+    response = table.query(
+        KeyConditionExpression='#UserDisplayName = :user',
+        ExpressionAttributeNames={'#UserDisplayName': 'UserDisplayName'},
+        ExpressionAttributeValues={':user': user_display_name}
+    )
+
+    if response.get('Items'):
+        # User has already voted, return a response indicating that
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'You have already voted'})
+        }
+
+    # User has not voted yet, proceed with storing the vote
+    for member_name, voted in checked_members.items():
+        unique_id = generate_unique_id(user_display_name, member_name)
+        table.put_item(
+            Item={
+                'VoteID': unique_id,
+                'UserDisplayName': user_display_name,
+                'MemberName': member_name,
+                'Voted': voted
+            }
+        )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Votes stored successfully')
+    }
+
+
+
+
+
+
+////final//////
+import json
+import hashlib
+import time
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table_name = 'VotesTable'
+
+def generate_unique_id(username, membername):
+    current_time = str(int(time.time()))
+    data_to_hash = f"{username}-{membername}-{current_time}"
+    unique_id = hashlib.sha256(data_to_hash.encode()).hexdigest()
+    return unique_id
+
+def lambda_handler(event, context):
+    user_display_name = event.get('userDisplayName')
+    checked_members = event.get('checkedMembers')
+
+    table = dynamodb.Table(table_name)
+
+    # Check if the user has already voted
+    response = table.query(
+        # IndexName='UsernameIndex',
+        KeyConditionExpression='#UserDisplayName = :user',
+        ExpressionAttributeNames={'#UserDisplayName': 'UserDisplayName'},
+        ExpressionAttributeValues={':user': user_display_name}
+    )
+    if response.get('Items'):
+        # User has already voted, return a response indicating that
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'You have already voted'})
+        }
+
+    # User has not voted yet, proceed with storing the vote
+    for member_name, voted in checked_members.items():
+        unique_id = generate_unique_id(user_display_name, member_name)
+        table.put_item(
+            Item={
+                'VoteID': unique_id,
+                'UserDisplayName': user_display_name,
+                'MemberName': member_name,
+                'Voted': voted
+            }
+        )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Votes stored successfully')
+    }
+
+
+
+
+
+///////final vote posting ////////
+import json
+import hashlib
+import time
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table_name = 'VotesTable'
+
+def generate_unique_id(username, membername):
+    current_time = str(int(time.time()))
+    data_to_hash = f"{username}-{membername}-{current_time}"
+    unique_id = hashlib.sha256(data_to_hash.encode()).hexdigest()
+    return unique_id
+
+def lambda_handler(event, context):
+    user_display_name = event.get('userDisplayName')
+    checked_members = event.get('checkedMembers')
+
+    table = dynamodb.Table(table_name)
+
+    # Check if the user has already voted
+    response = table.query(
+        # IndexName='UsernameIndex',
+        KeyConditionExpression='#UserDisplayName = :user',
+        ExpressionAttributeNames={'#UserDisplayName': 'UserDisplayName'},
+        ExpressionAttributeValues={':user': user_display_name}
+    )
+    if response.get('Items'):
+        # User has already voted, return a response indicating that
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'You have already voted'})
+        }
+
+    # User has not voted yet, proceed with storing the vote
+    for member_name, voted in checked_members.items():
+        unique_id = generate_unique_id(user_display_name, member_name)
+        table.put_item(
+            Item={
+                'VoteID': unique_id,
+                'UserDisplayName': user_display_name,
+                'MemberName': member_name,
+                'Voted': voted
+            }
+        )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Votes stored successfully')
+    }
